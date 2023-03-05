@@ -38,10 +38,7 @@ def default_add_day():
             if client.months.last().coming_days > client.months.all().last().days.filter(came=True).count():
                 m = client.months.all().last()
                 if m.payment == 0 or m.payment < client.coming_type.price or m.payed == True  :
-                    month = client.months.last()
-                    print(month)
-                    print(month)
-                    print(month)
+                    month = client.months.last() 
                     month.came = client.months.all().last().days.filter(came=True).count()
                     month.save()
                     today = datetime.date.today()

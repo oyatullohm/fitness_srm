@@ -194,9 +194,6 @@ def edit_day(request, day_id):
             month.save()
         return JsonResponse({"came":"True"})
     if resp == "false":
-        if client.coming_type.days == 1:
-            client.debt = False
-            client.save()
         day.came = False
         day.save()
         return JsonResponse({"came":"False"})
