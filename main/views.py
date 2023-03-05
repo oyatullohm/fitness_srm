@@ -269,8 +269,9 @@ class PaymentView(View):
         uid = request.POST.get('uid')
         payment = int(request.POST.get('payment'))
         discount = int(request.POST.get('discount'))
+
         balance = int(request.POST.get('balance'))
-        discounted = payment + discount + balance
+        discounted = payment + discount #+ balance
         try:
             obj = get_object_or_404(Client, uid=uid)
         except:
@@ -279,7 +280,7 @@ class PaymentView(View):
             return render(request, 'forms-layouts.html', {"response":"ID noto`g`ri berildi","status":"danger","clients":clients})
         else:
             month = Month.objects.filter(client=obj).last()
-            if month.payment == payment:
+            if month.payment == payment or month.payment == discounted:
                 month.payment = 0
                 month.payed = True
                 obj.debt = False
