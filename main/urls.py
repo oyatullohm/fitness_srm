@@ -3,7 +3,6 @@ from .views import *
 from .t_view import *
 from . import filter
 from django.contrib.auth.decorators import login_required
-
 app_name = 'main'
 
 urlpatterns = [
@@ -26,7 +25,6 @@ urlpatterns = [
 
     path("year_mount/", filter.getyear_view, name="year"),
     path("client_year_mount/", filter.getclient_view, name="client"),
-    
     path("client_barcode_came/<uid>", barcode_came, name="barcode_came"),
     path('login',LoginView.as_view(),name='login'),
     path('logout',logout_,name='logout'),

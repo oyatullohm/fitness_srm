@@ -87,6 +87,8 @@ class Payment(models.Model):
     date = models.DateField(auto_now_add=True)
     money = models.IntegerField("Puli")
     discount = models.PositiveIntegerField("chegirma", default=0)
+    # balance = models.PositiveIntegerField("balance", default=0)
+    
 
     def __str__(self):
         return str(self.date)

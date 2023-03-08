@@ -68,16 +68,15 @@
                   </div>
                   <div class="col-sm-9">
                     <select class="form-select" name="tarif" aria-label="State">
+                      <option selected value="" >O'zgartirish {{client.coming_type}} </option>
                       {% for t in tarifs %}
-                      {% if t == client.coming_type %}
-                      <option selected value="{{ t }}">{{ t }}</option>
-                      {% else %}
-                      <option  value="{{ t }}">{{ t }}</option>
-                      {% endif %}
+
+                      <option value="{{ t }}">{{ t }}</option>
+
                       {% endfor %}
                     </select>
                   </div>
-                  
+
                 </div>
                 <div class="row">
                   <div class="col-sm-3">
@@ -221,6 +220,7 @@
             <th scope="col">Oy nomi</th>
             <th scope="col">To'langan summa</th>
             <th scope="col">Chegirma</th>
+            <!-- <th scope="col">Balans dan To'ladi</th> -->
             <th scope="col">To'langan sana</th>
           </tr>
         </thead>
@@ -240,6 +240,7 @@
             <span class="badge bg-warning"> {{ p.discount }}</span> so'm <br> 
               {% endfor %}
             </td>
+            
             <td>
               {% for p in m.payments.all %}
               {{ p.date | date:"d.m.Y" }}<br>
@@ -247,13 +248,12 @@
             </td>
           </tr>
           {% endfor %}
-          
+
         </tbody>
       </table>
     </div>
 </div>
 
-        
 
 
   </main><!-- End #main -->

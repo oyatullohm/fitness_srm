@@ -140,7 +140,7 @@ class DetailView(View):
     @deco_login
 
     def get(self, request, id):
-       
+
         queryset = Client.objects.get(id=id)
         months = Month.objects.filter(client=queryset).order_by("-id")
         payment = months
@@ -161,22 +161,26 @@ class DetailView(View):
             messages.success(request, "Mijoz ro'yxatdan o'chirildi !")
             return redirect("main:list_client")
         else:
-
-            name = request.POST['name']
-            phone = request.POST['phone']
-            status = request.POST['status']
-            tarif = request.POST['tarif']
-            tarif = ComingType.objects.get(title=tarif)
-            client = Client.objects.filter(id=id)
-            client.update(name=name, phone=phone, coming_type=tarif, status=status)
-
-            client[0].coming_type.days
-            month = Month.objects.filter(client=client[0].id).last()
-            month.coming_days = client[0].coming_type.days
-            month.payment = client[0].coming_type.price
-            month.came = 0
-            month.payed = False
-            month.save()
+            name = request.POST.get('name')
+            phone = request.POST.get('phone')
+            status = request.POST.get('status')
+            tarifs = request.POST.get('tarif',False)
+           
+            client = Client.objects.get(id=id)
+            client.name = name
+            client.phone = phone
+            client.status = status
+            if tarifs:
+                tarif = ComingType.objects.filter(title=tarifs)[0]
+                client.coming_type = tarif
+                client.coming_type.days
+                month = Month.objects.filter(client=client.id).last()
+                month.coming_days = client.coming_type.days
+                month.payment = client.coming_type.price
+                month.came = 0
+                month.payed = False
+                month.save()
+            client.save()
         return redirect(f"/detail/{id}")
 
 @deco_login_fun
@@ -269,9 +273,9 @@ class PaymentView(View):
         uid = request.POST.get('uid')
         payment = int(request.POST.get('payment'))
         discount = int(request.POST.get('discount'))
+        balance = int(request.POST.get('balance',0))
+        discounted = payment + discount + balance
 
-        balance = int(request.POST.get('balance'))
-        discounted = payment + discount #+ balance
         try:
             obj = get_object_or_404(Client, uid=uid)
         except:
@@ -280,27 +284,30 @@ class PaymentView(View):
             return render(request, 'forms-layouts.html', {"response":"ID noto`g`ri berildi","status":"danger","clients":clients})
         else:
             month = Month.objects.filter(client=obj).last()
-            if month.payment == payment or month.payment == discounted:
+            if month.payment <= discounted:
+                balances =  payment - month.payment
+                if balances > 0:
+                    obj.balance += balances
+                if balance :
+                    obj.balance -= balance
+
                 month.payment = 0
                 month.payed = True
                 obj.debt = False
-            elif month.payment < discounted:
-                balance = discounted - month.payment
-                month.payment = 0
-                month.payed = True
-                obj.debt = False
-                obj.balance += balance
+
             else:
                 month.payment -= discounted
+                if balance :
+                    obj.balance -= balance
                 month.payed = False
                 obj.debt = True
             month.save()
-            obj.balance -= balance
             obj.save()
+
             Payment.objects.create(
                 month=month,
                 money=payment,
-                discount=discount
+                discount=discount,
             )
             today = datetime.date.today()
             Day.objects.get_or_create(
