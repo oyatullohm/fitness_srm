@@ -28,7 +28,7 @@ DEBUG = True
 
 if DEBUG:
     from config.locale_settings import *
-else:    
+else:
     from config.pro_settings import *
 
 # Application definition
