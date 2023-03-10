@@ -1,4 +1,7 @@
 {% extends 'wrapper.html' %}
+{% block title %}
+<title>CRMFitness | {{client}} </title>
+{% endblock %}
 {% block content %}
 
   <main id="main" class="main">
@@ -125,7 +128,7 @@
     {% for month in months %}
     <div class="month">
         <div class="title form-inline">
-            <h4 class="pagetitle">{{month.created | date:"m/Y"}} <span class="fs-6">{{month.came}}/{{month.coming_days}} </span>
+            <h4 class="pagetitle">{{month.created | date:"m/Y"}} <span class="fs-6">/{{month.coming_days}} </span>
                 
                 {% if month.payed == True %}
                     <button class="btn btn-primary btn-sm btn-disaled">To'langan</button>

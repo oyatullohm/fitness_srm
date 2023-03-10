@@ -5,8 +5,8 @@ from .models import *
 def default_add_month():
     clients = Client.objects.all()
     for client in clients:
-        last_month = (str(client.months.last().created))
-        this_month = str(datetime.date.today())
+        last_month = (str(client.months.last().created))[:7]
+        this_month = str(datetime.date.today())[:7]
         if last_month != this_month:
             now = datetime.datetime.now()
             today = int(now.strftime("%d"))
@@ -32,7 +32,7 @@ def default_add_day():
             if client.months.last().coming_days > client.months.all().last().days.filter(came=True).count():
                 if client.debt ==  False and client.months.last().payed == True:
                     month = client.months.last()
-                    month.came = client.months.all().last().days.filter(came=True).count()
+                    month.came = client.months.all().last().days.filter(came=True).count()+1
                     month.save()
                     today = datetime.date.today()
                     day = Day.objects.get_or_create(

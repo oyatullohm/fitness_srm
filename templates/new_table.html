@@ -1,4 +1,7 @@
 {% extends 'wrapper.html' %}
+{% block title %}
+<title>CRMFitness |Jadvallar </title>
+{% endblock %}
 {% block content %}
 <link rel="stylesheet" href="/static/assets/example/css_final.css">
 <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
@@ -76,21 +79,21 @@
                 {% endif %}
                 </td>
 
-                <td class="text-center">{{ c.phone }} </td>
-                <td class="att_td ">   
+                <td class="text-center"> {{c.phone}} {{c.months.all.last.days.all.last.date}}</td>
+                <td class="att_td ">
                     <label class="switch ">
-                       
-                        {% if c.months.all.last.days.all.last.date == today.date %}
-                       
-                            {% if c.months.all.last.days.all.last.came == False %}
-                                <input data-id="{{c.months.all.last.days.all.last.id}}" type="checkbox" class="default davomat">
-                                <span class="slider round"></span>
 
-                            {% else %}
-                                <input data-id="{{c.months.all.last.days.all.last.id}}" checked="true" type="checkbox" class="default davomat">
-                                <span class="slider round"></span>
-                            {% endif %}
-                       
+                    {% if c.months.all.last.days.all.last.date == today.date %}
+                        {% if c.months.all.last.days.all.last.came == True %}
+
+                        <input data-id="{{c.months.all.last.days.all.last.id}}" checked="true" type="checkbox" class="default davomat">
+                        <span class="slider round"></span>
+                        {% else %}
+                        <input data-id="{{c.months.all.last.days.all.last.id}}" type="checkbox" class="default davomat">
+                        <span class="slider round"></span>
+
+                        {% endif %}
+
 
                     {% endif %}
                     </label>

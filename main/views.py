@@ -162,11 +162,13 @@ class DetailView(View):
             tarif = ComingType.objects.get(title=tarif)
             client = Client.objects.filter(id=id)
             client.update(name=name, phone=phone, coming_type=tarif, status=status)
-            
+
             client[0].coming_type.days
             month = Month.objects.filter(client=client[0].id).last()
             month.coming_days = client[0].coming_type.days
             month.payment = client[0].coming_type.price
+            month.came = 0
+            month.payed = False
             month.save()
         return redirect(f"/detail/{id}")
 
