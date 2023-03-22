@@ -5,7 +5,7 @@ from .models import *
 import datetime
 import calendar
 from django.contrib import messages
-from .filter import deco_login
+from .filter import deco_login ,deco_login_fun
 
 from .default_add import *
 
@@ -179,7 +179,7 @@ class DetailView(View):
             month.save()
         return redirect(f"/detail/{id}")
 
-
+@deco_login_fun
 def edit_day(request, day_id):
     day = get_object_or_404(Day, id=day_id)
     client =day.month.client.months.all().last().client
@@ -203,7 +203,7 @@ def edit_day(request, day_id):
     else:
         return JsonResponse({"came":"not valid"})
 
-
+@deco_login_fun
 def barcode_came(request, uid):
     try:
         client = get_object_or_404(Client, uid=uid)
@@ -315,7 +315,7 @@ class PaymentView(View):
                 m.save()
             return redirect('/payment')
 
-
+@deco_login_fun
 def detail_payment(request):
     month_id = int(request.POST.get('month_id'))
     payment = int(request.POST.get('payment'))

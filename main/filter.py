@@ -60,3 +60,11 @@ def deco_login(fun):
             return fun(self, request, *args, **kwargs)
         return redirect('main:login')
     return wrapper
+
+
+def deco_login_fun(fun):
+    def wrapper(request,*args,**kwargs):
+        if request.user.is_authenticated:
+            return fun( request, *args, **kwargs)
+        return redirect('main:login')
+    return wrapper
