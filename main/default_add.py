@@ -35,9 +35,8 @@ def default_add_day():
     clients = Client.objects.all()
     for client in clients:
         try:
-
             if client.months.last().coming_days > client.months.all().last().days.filter(came=True).count():
-                if client.months.all().last().payment == 0 or client.months.all().last().payment < client.coming_type.price :
+                if client.months.all().last().payment == 0 or client.months.all().last().payment < client.coming_type.price or client.coming_type.days == 1:
                     month = client.months.last()
                     month.came = client.months.all().last().days.filter(came=True).count()
                     month.save()

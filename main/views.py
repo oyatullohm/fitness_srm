@@ -140,6 +140,7 @@ class DetailView(View):
     @deco_login
 
     def get(self, request, id):
+       
         queryset = Client.objects.get(id=id)
         months = Month.objects.filter(client=queryset).order_by("-id")
         payment = months
@@ -147,6 +148,10 @@ class DetailView(View):
         month = queryset.months.all().last()
         month.came = queryset.months.all().last().days.filter(came=True).count()
         month.save()
+        if queryset.coming_type.days == 1:
+            month = queryset.months.all().last()
+            month.payment =  queryset.coming_type.price
+            month.save()
         return render(request, "detail.html", {"client":queryset, "months":months, "tarifs":tarif})
 
     def post(self, request, id):
@@ -178,8 +183,6 @@ class DetailView(View):
 def edit_day(request, day_id):
     day = get_object_or_404(Day, id=day_id)
     client =day.month.client.months.all().last().client
-
-    
     resp = request.GET.get('day_result')
     if resp == "true":
         day.came = True
@@ -203,9 +206,7 @@ def edit_day(request, day_id):
 
 def barcode_came(request, uid):
     try:
-        
         client = get_object_or_404(Client, uid=uid)
-        
         day = client.months.last().days.last()
         today = datetime.datetime.now().strftime('%Y-%m-%d')
         if str(today) == str(day):
@@ -303,12 +304,15 @@ class PaymentView(View):
                 money=payment,
                 discount=discount
             )
-
             today = datetime.date.today()
             Day.objects.get_or_create(
                     month=month,date=today
                     )
             messages.success(request, "To'lov amalga oshirildi ! ")
+            if obj.coming_type.days == 1:
+                m = obj.months.all().last()
+                m.coming_days = obj.months.all().last().days.filter(came= True).count()+1
+                m.save()
             return redirect('/payment')
 
 
@@ -333,6 +337,10 @@ def detail_payment(request):
         obj.debt = True
     month.save()
     today = datetime.date.today()
+    if obj.coming_type.days == 1:
+        m = obj.months.all().last()
+        m.coming_days = obj.months.all().last().days.filter(came= True).count()+1
+        m.save()
     Day.objects.get_or_create(
                     month=month,date=today
                     )
