@@ -144,7 +144,9 @@ class DetailView(View):
         months = Month.objects.filter(client=queryset).order_by("-id")
         payment = months
         tarif = ComingType.objects.all()
-
+        month = queryset.months.all().last()
+        month.came = queryset.months.all().last().days.filter(came=True).count()
+        month.save()
         return render(request, "detail.html", {"client":queryset, "months":months, "tarifs":tarif})
 
     def post(self, request, id):
@@ -176,11 +178,6 @@ class DetailView(View):
 def edit_day(request, day_id):
     day = get_object_or_404(Day, id=day_id)
     client =day.month.client.months.all().last().client
-    kelgan_kunlari = day.month.client.months.all().last().days.all().filter(came=True).count()+1
-    
-    if client.months.all().last().coming_days <= kelgan_kunlari:
-        client.debt = True
-        client.save()
 
     
     resp = request.GET.get('day_result')
@@ -190,9 +187,8 @@ def edit_day(request, day_id):
         if client.coming_type.days == 1:
             month = client.months.all().last()
             month.payment =  client.coming_type.price
+            month.coming_days = month.days.filter(came= True).count()
             month.save()
-            client.debt = True
-            client.save()
         return JsonResponse({"came":"True"})
     if resp == "false":
         if client.coming_type.days == 1:
@@ -207,7 +203,9 @@ def edit_day(request, day_id):
 
 def barcode_came(request, uid):
     try:
+        
         client = get_object_or_404(Client, uid=uid)
+        
         day = client.months.last().days.last()
         today = datetime.datetime.now().strftime('%Y-%m-%d')
         if str(today) == str(day):
@@ -216,13 +214,16 @@ def barcode_came(request, uid):
             if client.coming_type.days == 1:
                 month = client.months.all().last()
                 month.payment =  client.coming_type.price
-                month.payed = False
+                month.coming_days = month.days.filter(came= True).count()
                 month.save()
-                client.debt = False
-                client.save()
+
             status = f"{client.name} bugun mashg'ulotga keldi."
         else:
             status = f"{client.name} avval to'lovni amalga oshiring!"
+        kelgan_kunlari = day.month.client.months.all().last().days.all().filter(came=True).count()+1
+        if client.months.all().last().coming_days <= kelgan_kunlari:
+            client.debt = True
+            client.save()
     except:
         status = "UID noto`g`ri"
     return JsonResponse({"status":status})

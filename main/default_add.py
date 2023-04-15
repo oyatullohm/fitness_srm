@@ -15,7 +15,11 @@ def default_add_month():
             if res_days >= client.coming_type.days:
                 coming_days = client.coming_type.days
                 price = client.coming_type.price
+                client.debt = True
+                client.save()
             else:
+                client.debt = True
+                client.save()
                 daily_price = client.coming_type.price / client.coming_type.days
                 coming_days = res_days
                 price = daily_price * coming_days
@@ -25,14 +29,17 @@ def default_add_month():
                 payment=int(price)
             )
 
+
+
 def default_add_day():
     clients = Client.objects.all()
     for client in clients:
         try:
+
             if client.months.last().coming_days > client.months.all().last().days.filter(came=True).count():
-                if client.debt ==  False and client.months.last().payed == True:
+                if client.months.all().last().payment == 0 or client.months.all().last().payment < client.coming_type.price :
                     month = client.months.last()
-                    month.came = client.months.all().last().days.filter(came=True).count()+1
+                    month.came = client.months.all().last().days.filter(came=True).count()
                     month.save()
                     today = datetime.date.today()
                     day = Day.objects.get_or_create(
