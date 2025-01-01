@@ -76,25 +76,22 @@
                 {% endif %}
                 </td>
 
-                <td class="text-center">{{ c.phone }}</td>
-                <td class="att_td ">  
+                <td class="text-center">{{ c.phone }} </td>
+                <td class="att_td ">   
                     <label class="switch ">
-                  
-                        {% if c.months.all.last.days.all.last == today  %}
+                       
+                        {% if c.months.all.last.days.all.last.date == today.date %}
                        
                             {% if c.months.all.last.days.all.last.came == False %}
+                                <input data-id="{{c.months.all.last.days.all.last.id}}" type="checkbox" class="default davomat">
+                                <span class="slider round"></span>
 
-                            <input data-id="{{c.months.all.last.days.all.last.id}}" type="checkbox" class="default davomat">
-                            <span class="slider round"></span>
-                          
                             {% else %}
-                            <input data-id="{{c.months.all.last.days.all.last.id}}" checked="true" type="checkbox" class="default davomat">
-                            <span class="slider round"></span>
-
+                                <input data-id="{{c.months.all.last.days.all.last.id}}" checked="true" type="checkbox" class="default davomat">
+                                <span class="slider round"></span>
                             {% endif %}
-                            {% else %}
+                       
 
-                        
                     {% endif %}
                     </label>
                 </td>

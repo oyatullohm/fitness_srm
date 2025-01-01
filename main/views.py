@@ -116,7 +116,7 @@ class RegisterView(View):
                 coming_days = res_days
                 price = daily_price * coming_days
             sunday = coming_days // 7
-            coming_days -= sunday
+            # coming_days -= sunday
             month = Month.objects.create(
                 client=client,
                 coming_days=coming_days,
@@ -162,6 +162,12 @@ class DetailView(View):
             tarif = ComingType.objects.get(title=tarif)
             client = Client.objects.filter(id=id)
             client.update(name=name, phone=phone, coming_type=tarif, status=status)
+            
+            client[0].coming_type.days
+            month = Month.objects.filter(client=client[0].id).last()
+            month.coming_days = client[0].coming_type.days
+            month.payment = client[0].coming_type.price
+            month.save()
         return redirect(f"/detail/{id}")
 
 
@@ -183,8 +189,13 @@ def edit_day(request, day_id):
             month = client.months.all().last()
             month.payment =  client.coming_type.price
             month.save()
+            client.debt = True
+            client.save()
         return JsonResponse({"came":"True"})
     if resp == "false":
+        if client.coming_type.days == 1:
+            client.debt = False
+            client.save()
         day.came = False
         day.save()
         return JsonResponse({"came":"False"})
@@ -200,6 +211,13 @@ def barcode_came(request, uid):
         if str(today) == str(day):
             day.came = True
             day.save()
+            if client.coming_type.days == 1:
+                month = client.months.all().last()
+                month.payment =  client.coming_type.price
+                month.payed = False
+                month.save()
+                client.debt = False
+                client.save()
             status = f"{client.name} bugun mashg'ulotga keldi."
         else:
             status = f"{client.name} avval to'lovni amalga oshiring!"
@@ -212,13 +230,10 @@ class DavomatView(View):
     @deco_login
 
     def get(self,request):
-        today = str(datetime.date.today())
-        today = Day.objects.filter(date=today)
-        if today:
-            today = today[0]
+        today = datetime.datetime.today()
+
         queryset = Client.objects.all().order_by("-id")
         tarif = ComingType.objects.all()
-        print(today)
         data = {
             "clients":queryset,
             "tarif":tarif,
@@ -240,7 +255,7 @@ class PaymentView(View):
                 "uid":client.uid,
                 "payment":month.payment,
                 "balance":client.balance
-                
+
             }
 
             return JsonResponse(data)
@@ -285,13 +300,11 @@ class PaymentView(View):
                 money=payment,
                 discount=discount
             )
-            try:
-                last_day = month.days.last().date
-            except:
-                last_day = 'no last day'
-            today = datetime.datetime.now()
-            if last_day != today:
-                Day.objects.create(month=month)
+
+            today = datetime.date.today()
+            Day.objects.get_or_create(
+                    month=month,date=today
+                    )
             messages.success(request, "To'lov amalga oshirildi ! ")
             return redirect('/payment')
 
@@ -316,13 +329,10 @@ def detail_payment(request):
         month.payed = False
         obj.debt = True
     month.save()
-    try:
-        last_day = month.days.last().date
-    except:
-        last_day = 'no last day'
-    today = datetime.datetime.now()
-    if last_day != today:
-        Day.objects.create(month=month)
+    today = datetime.date.today()
+    Day.objects.get_or_create(
+                    month=month,date=today
+                    )
     obj.save()
     py = Payment.objects.create(
         month=month,
